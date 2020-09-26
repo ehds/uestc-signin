@@ -10,8 +10,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
-from baidu import baidu_ocr
-from captcha import CalcMoveOffset
+from .baidu import baidu_ocr
+from .captcha import CalcMoveOffset
 
 
 class Login(object):

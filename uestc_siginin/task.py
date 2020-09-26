@@ -1,17 +1,18 @@
 # coding:utf-8
 import requests
 import json
-from enum import Enum
-from abc import ABCMeta, abstractmethod
 import datetime
 import random
 import time
-from uestc_login import Login, ReLogin
-import threading
-from util import get_date_str
-import logging
-from config import UserConfig
 import sys
+import threading
+import logging
+from enum import Enum
+from abc import ABCMeta, abstractmethod
+from .config import UserConfig
+from .util import get_date_str
+from .uestc_login import Login, ReLogin
+
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -293,11 +294,3 @@ def MainTask(config):
             logging.info("Not need to run task,wating for task")
             time.sleep(20*60)
 
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("You need to set config path")
-    print(sys.argv)
-    config_path = sys.argv[1]
-    config = UserConfig(config_path)
-    MainTask(config)

@@ -28,8 +28,7 @@ passwd = 'xxx'
 ```
 run the task
 ```
-python3 uestc_login.py
-python3 task.py
+python3 main.py config.json
 ```
 
 ## TODO
