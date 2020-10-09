@@ -279,9 +279,9 @@ def MainTask(config):
         current_date = datetime.datetime.now()
         current_date_str = current_date.strftime("%Y-%m-%d")
         # if current_date not run task and hour is greater 8am
-        if DateCompare(last_check_day, current_date_str) and current_date.hour >= 0:
+        if DateCompare(last_check_day, current_date_str) and current_date.hour > 8:
             try:
-                if True:
+                if ReLogin(config):
                     logging.info("starting today's task")
                     stu = StuReportTask(config)
                     stu.run()
