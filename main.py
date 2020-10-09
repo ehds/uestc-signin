@@ -1,5 +1,5 @@
-
-from .config import UserConfig
+import sys
+from uestc_siginin.config import UserConfig
 from uestc_siginin.task import MainTask
 
 if __name__ == "__main__":

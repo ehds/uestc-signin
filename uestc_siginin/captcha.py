@@ -51,7 +51,7 @@ def CalcMoveOffset(origin_path, template_path, max_offset=280):
     template_img = cv2.imread(template_path, 0)
 
     # crop image
-    #print(template_img)
+    # print(template_img)
     template_img_arr = np.copy(template_img)
     template_pos = np.where(template_img_arr > 0)
     x_t, x_b = np.min(template_pos[0]), np.max(template_pos[0])

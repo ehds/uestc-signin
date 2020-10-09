@@ -2,9 +2,9 @@
 
 import time
 
-def get_date_str():
-   return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
 
+def get_date_str():
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
 
 if __name__ == "__main__":

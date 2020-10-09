@@ -28,7 +28,7 @@ class Login(object):
             # set options
             options = webdriver.FirefoxOptions()
             # without GUI window
-            #options.add_argument('--headless')
+            options.add_argument('--headless')
             cap = DesiredCapabilities().FIREFOX
             cap["marionette"] = True
             self.driver = webdriver.Firefox(
