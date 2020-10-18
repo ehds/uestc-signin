@@ -1,4 +1,4 @@
-# UESTC SAFE CHECK
+# UESTC-Sign-In
 
 ## Install
 
@@ -14,7 +14,6 @@ bash install.sh
 ```
 ### Docker
 ```
-cd docker
 docker build -t uestc_check:latest .
 docker run -d --name uestc_check -v path/to/config.json:/etc/uestc_check/config.json uestc_check
 ```
