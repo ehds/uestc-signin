@@ -16,6 +16,6 @@ COPY config_template.json /etc/uestc_check/config.json
 
 RUN cd ${UESTC_HOME} && bash install.sh
 
-WORKDIR ${UESTC_HOME}/src
-ENTRYPOINT ["python3","task.py"]
+WORKDIR ${UESTC_HOME}
+ENTRYPOINT ["python3","main.py"]
 CMD ["/etc/uestc_check/config.json"]
