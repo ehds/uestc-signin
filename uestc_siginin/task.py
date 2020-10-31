@@ -13,13 +13,7 @@ from .config import UserConfig
 from .util import get_date_str
 from .uestc_login import Login, ReLogin
 
-
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename='./logs/uestc.log',
-                    filemode='a')
-
+logger = logging.getLogger(__name__)
 
 class Task(object):
 
@@ -70,7 +64,7 @@ class TemperatureTask(Task):
     def init_data(self):
         """ init cookies and user data """
         self.cookies = Login.load_cookies()
-        logging.info(self.cookies)
+        logger.info(self.cookies)
         user_info_url = "http://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/api/base/getUserDetailDB.do"
         res = requests.post(user_info_url, cookies=self.cookies).content.decode(
             encoding="utf-8")
@@ -139,7 +133,7 @@ class TemperatureTask(Task):
             post_data = self._get_tem_post_data(i)
             res = requests.post(post_url, data=post_data,
                                 cookies=self.cookies, headers=self.headers)
-            logging.debug("TEMPERATURE", post_data,
+            logger.debug("TEMPERATURE", post_data,
                           res.content.decode(encoding="utf-8"))
             # TODO  need to retry if fail
 
@@ -173,7 +167,7 @@ class StuReportTask(Task):
         last_daily_data = requests.post(
             lastest_daily_report_url, data=post_data, headers=headers, cookies=self.cookies).content
         print(last_daily_data)
-        logging.info(last_daily_data)
+        logger.info(last_daily_data)
         data = json.loads(last_daily_data)
         data = data["datas"]["getLatestDailyReportData"]["rows"][0]
         with open('./data/report.json', 'w') as f:
@@ -235,7 +229,7 @@ class StuReportTask(Task):
         }
         res = requests.post(post_url, data=data,
                             cookies=self.cookies, headers=headers)
-        logging.info(res.content.decode(encoding="utf-8"))
+        logger.info(res.content.decode(encoding="utf-8"))
 
     def runable(self):
         now = time.time()
@@ -282,20 +276,20 @@ def MainTask(config):
         if DateCompare(last_check_day, current_date_str) and current_date.hour > 8:
             try:
                 if ReLogin(config):
-                    logging.info("starting today's task")
+                    logger.info("starting today's task")
                     stu = StuReportTask(config)
                     stu.run()
                     tem = TemperatureTask(config)
                     tem.run()
                     # we have completed today's task,then we need to update state
                     last_check_day = current_date_str
-                    logging.info("Today's task has completed")
+                    logger.info("Today's task has completed")
                 else:
                     time.sleep(30)
-                    logging.error("Login error, password or username wrong.")
+                    logger.error("Login error, password or username wrong.")
             except:
-                logging.error("Task error,maybe the internet can not access")
+                logger.error("Task error,maybe the internet can not access")
                 time.sleep(10)
         else:
-            logging.info("Not need to run task,wating for task")
+            logger.info("Not need to run task,wating for task")
             time.sleep(20*60)

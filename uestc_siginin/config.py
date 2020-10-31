@@ -1,8 +1,7 @@
 import os
 import logging
 import json
-logging.basicConfig(filename='./logs/uestc.log', level=logging.INFO)
-
+logger = logging.getLogger(__name__)
 
 class UserConfig(object):
     def __init__(self, config_path):
@@ -13,7 +12,7 @@ class UserConfig(object):
         if not os.path.exists(self._config_path):
             error_message = "There is not config file {}".format(
                 self._config_path)
-            logging.error(error_message)
+            logger.error(error_message)
             raise ValueError(error_message)
         data = {}
         with open(self._config_path, 'r') as f:

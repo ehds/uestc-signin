@@ -13,7 +13,7 @@ from selenium.webdriver import ActionChains
 from .baidu import baidu_ocr
 from .captcha import CalcMoveOffset
 
-
+logger = logging.getLogger(__name__)
 class Login(object):
     def __init__(self, user, passwd, driver_name="firefox"):
         self.user = str(user)
@@ -46,7 +46,7 @@ class Login(object):
             "https://mapp.uestc.edu.cn/site/uestcService/index?ticket=ST-150915-1u1eImAqIyPsxrugzxlf1590930369193-vuau-cas")
         # saving the login page
         time.sleep(5)
-        logging.debug('finding login element')
+        logger.debug('finding login element')
         # # find usename and passwd element
         user = driver.find_element_by_id("username")
         passwd = driver.find_element_by_id("password")
@@ -57,7 +57,7 @@ class Login(object):
         user.send_keys(self.user)
         passwd.send_keys(self.passwd)
 
-        logging.debug('clicking login button')
+        logger.debug('clicking login button')
         login_btn.click()
         time.sleep(2)
 
@@ -98,7 +98,7 @@ class Login(object):
                 break
         # fail to login
         else:
-            logging.error("log in failed,maybe username of password is wrong")
+            logger.error("log in failed,maybe username of password is wrong")
             return False
 
         driver.get(
