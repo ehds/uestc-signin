@@ -40,3 +40,4 @@ docker run -d --name uestc_check -v path/to/config.json:/etc/uestc_check/config.
 ## TODO
 1. support multiple users
 2. fix log format
+3. improve captcha recognition accuracy

@@ -14,6 +14,33 @@ from .baidu import baidu_ocr
 from .captcha import CalcMoveOffset
 
 logger = logging.getLogger(__name__)
+
+
+class page_load_state(object):
+    """An expectation for the page to be located is completed or loading."""
+
+    def __init__(self, state):
+        self._state = state
+
+    def __call__(self, driver):
+        return driver.execute_script('return document.readyState') == self._state
+
+
+class loaded_weu_cookie(object):
+    """An expectation for the _WEU cookie item loaded"""
+
+    def __init__(self):
+        pass
+
+    def __call__(self, driver):
+        if page_load_state('complete')(driver):
+            current_cookies = {}
+            for elem in driver.get_cookies():
+                current_cookies[elem['name']] = elem['value']
+            return "_WEU" in current_cookies and len(current_cookies["_WEU"]) >= 152
+        return False
+
+
 class Login(object):
     def __init__(self, user, passwd, driver_name="firefox"):
         self.user = str(user)
@@ -101,12 +128,22 @@ class Login(object):
             logger.error("log in failed,maybe username of password is wrong")
             return False
 
+        # enter app for getting login cookies
         driver.get(
             "http://eportal.uestc.edu.cn/qljfwapp/sys/lwReportEpidemicStu/*default/index.do#/dailyReport")
-        time.sleep(2)
-        cookies = driver.get_cookies()
-        driver.quit()
-        Login.save_cookies(cookies)
+
+        try:
+            # wating until we get _WEU cookie item for task
+            element = WebDriverWait(driver, 15).until(
+                loaded_weu_cookie()
+            )
+        except Exception as e:
+            logger.error("Loding cookie error {}".format(e))
+            return False
+        finally:
+            cookies = driver.get_cookies()
+            Login.save_cookies(cookies)
+            driver.quit()
         return True
 
     @classmethod
@@ -138,7 +175,3 @@ def ReLogin(config):
         return False
     print("Login success!")
     return True
-
-
-if __name__ == "__main__":
-    ReLogin()

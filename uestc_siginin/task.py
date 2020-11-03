@@ -15,6 +15,7 @@ from .uestc_login import Login, ReLogin
 
 logger = logging.getLogger(__name__)
 
+
 class Task(object):
 
     class RequestMethod(Enum):
@@ -133,8 +134,8 @@ class TemperatureTask(Task):
             post_data = self._get_tem_post_data(i)
             res = requests.post(post_url, data=post_data,
                                 cookies=self.cookies, headers=self.headers)
-            logger.debug("TEMPERATURE", post_data,
-                          res.content.decode(encoding="utf-8"))
+            logger.info("TEMPERATURE Task data：{}, RESULT: {}".format(post_data,
+                                                                      res.content.decode(encoding="utf-8")))
             # TODO  need to retry if fail
 
     def runable(self):
@@ -229,7 +230,8 @@ class StuReportTask(Task):
         }
         res = requests.post(post_url, data=data,
                             cookies=self.cookies, headers=headers)
-        logger.info(res.content.decode(encoding="utf-8"))
+        logger.info("STUREPORT Task data：{}, RESULT: {}".format(data,
+                                                                res.content.decode(encoding="utf-8")))
 
     def runable(self):
         now = time.time()
