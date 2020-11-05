@@ -1,6 +1,6 @@
 import sys
-from uestc_siginin.config import UserConfig
-from uestc_siginin.task import MainTask
+from uestc_signin.config import UserConfig
+from uestc_signin.task import MainTask
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
