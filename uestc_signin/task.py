@@ -92,7 +92,7 @@ class TemperatureTask(Task):
         res = requests.post(url, data=post_data, cookies=self.cookies)
         data = json.loads(res.content)
         TempData = data["datas"]["getMyTempReportDatas"]
-        if TempData["totalSize"] < 3:
+        if TempData["totalSize"] == 0:
             return True
         else:
             if len(list(filter(lambda x: x["DAY_TIME"] == str(index), TempData["rows"]))) < 1:
