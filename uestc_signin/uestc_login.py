@@ -48,7 +48,6 @@ class Login(object):
         self.driver_name = driver_name
         self.driver = None
         self.timeout = 10  # second
-        self.init_driver()
 
     def init_driver(self):
         if (self.driver_name == "firefox"):
@@ -62,9 +61,13 @@ class Login(object):
                 options=options, capabilities=cap, executable_path='./driver/geckodriver')
             self.driver.implicitly_wait(self.timeout)
 
+    def release_driver(self):
+        self.driver.quit()
+        self.driver = None
+
     def login(self) -> bool:
         if self.driver == None:
-            return False
+            self.init_driver()
 
         driver = self.driver
         driver.implicitly_wait(10)
@@ -123,8 +126,9 @@ class Login(object):
             # vertify if login success
             if "authserver" not in driver.current_url:
                 break
-        # fail to login
+        # fail to login, out of try times
         else:
+            self.release_driver()
             logger.error("log in failed,maybe username of password is wrong")
             return False
 
@@ -141,9 +145,9 @@ class Login(object):
             logger.error("Loding cookie error {}".format(e))
             return False
         finally:
-            cookies = driver.get_cookies()
-            Login.save_cookies(cookies)
-            driver.quit()
+            Login.save_cookies(driver.get_cookies())
+            self.release_driver()
+        # everythin is ok, login is ok
         return True
 
     @classmethod
