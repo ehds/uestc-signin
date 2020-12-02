@@ -199,8 +199,8 @@ class StuReportTask(Task):
         data['CZRQ'] = cur_date_str+" 00:00:00"
         data['NEED_CHECKIN_DATE'] = cur_date_str
         data['CREATED_AT'] = get_date_str()
-        wid = self._get_today_wid()
-        data['WID'] = wid
+        #wid = self._get_today_wid()
+        data['WID'] = ""
         return data
 
     def _get_today_wid(self):

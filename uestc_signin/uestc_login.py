@@ -93,7 +93,7 @@ class Login(object):
 
         # complete captcha (move slider bar)
         # mabye fail we can try many times
-        for i in range(20):
+        for _ in range(20):
             captcha_img_ele = driver.find_element_by_xpath(
                 '/html/body/div/div[2]/div[2]/div/div[1]/div/div/div/div[2]/div/canvas[1]')
             captcha_base64 = driver.execute_script(
@@ -138,7 +138,7 @@ class Login(object):
 
         try:
             # wating until we get _WEU cookie item for task
-            element = WebDriverWait(driver, 15).until(
+            WebDriverWait(driver, 15).until(
                 loaded_weu_cookie()
             )
         except Exception as e:
