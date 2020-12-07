@@ -19,6 +19,7 @@ docker build -t uestc_check:latest .
 ```
 
 ## Usage
+Please sync time zone first
 ### Linux
 set username and passwd at config_template.json
 ```
