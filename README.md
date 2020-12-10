@@ -14,7 +14,7 @@ bash install.sh
 ```
 ### Docker
 ```
-docker build -t uestc_check:latest .
+docker build -t uestc_signin:latest .
 
 ```
 
@@ -53,7 +53,7 @@ python3 main.py uestc.conf
 ### Docker
 
 ```
-docker run -d --name uestc_check -v path/to/uestc.conf:/etc/uestc_check/uestc.conf uestc_check
+docker run -d --name uestc_signin -v path/to/uestc.conf:/etc/uestc_signin/uestc.conf uestc_signin
 ```
 
 ## TODO
