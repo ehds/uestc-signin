@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 import logging
-from config import MailConfig
+from .config import MailConfig
 
 logger = logging.getLogger(__name__)
 
