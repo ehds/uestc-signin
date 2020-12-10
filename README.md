@@ -28,7 +28,7 @@ password = 'xxx'
 
 ```
 
-If you want to if today's task has done, set the mail config section. You can get these settings from your email server provider,for example [mail.qq.com](https://service.mail.qq.com/cgi-bin/help?subtype=1&&id=14&&no=1000898)
+If you want to know if today's task has done, set the mail config section. You can get these settings from your email server provider, for example [mail.qq.com](https://service.mail.qq.com/cgi-bin/help?subtype=1&&id=14&&no=1000898)
 
 ```
 enable = true
@@ -47,13 +47,13 @@ receivers =
 
 run the task
 ```
-python3 main.py config.json
+python3 main.py uestc.conf
 ```
 
 ### Docker
 
 ```
-docker run -d --name uestc_check -v path/to/config.json:/etc/uestc_check/config.json uestc_check
+docker run -d --name uestc_check -v path/to/uestc.conf:/etc/uestc_check/uestc.conf uestc_check
 ```
 
 ## TODO
