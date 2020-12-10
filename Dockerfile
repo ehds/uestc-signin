@@ -15,9 +15,9 @@ RUN unzip uestc_signin.zip
 RUN mv uestc_check ${UESTC_HOME}
 RUN rm -rf uestc_signin.zip
 RUN mkdir -p /etc/uestck_signin
-COPY config_template.json /etc/uestc_signin/config.json
+COPY uestc.conf /etc/uestc_signin/uestc.conf
 RUN cd ${UESTC_HOME} && bash install.sh
 
 WORKDIR ${UESTC_HOME}
 ENTRYPOINT ["python3","main.py"]
-CMD ["/etc/uestc_check/config.json"]
+CMD ["/etc/uestc_signin/uestc.conf"]
