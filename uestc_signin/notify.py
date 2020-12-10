@@ -13,14 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 class SendMail():
-    def __init__(self):
-        self._mail_config = MailConfig()
-        self.host = self._mail_config.smtp_host
-        self.port = self._mail_config.port
-        self.username = self._mail_config.username
-        self.password = self._mail_config.password
-        self.receivers_str = self._mail_config.receivers
-        self.enable = self._mail_config.enable
+    def __init__(self, mail_config):
+        self.host = mail_config.smtp_host
+        self.port = mail_config.port
+        self.username = mail_config.username
+        self.password = mail_config.password
+        self.receivers_str = mail_config.receivers
+        self.enable = mail_config.enable
         self.is_login = False
 
     def login(self):
@@ -81,10 +80,11 @@ class SendMail():
         self.mail_handle.close()
 
 
-def Notify(subject, msg):
-    Mail = SendMail()
+def Notify(mail_config, subject, msg):
+    Mail = SendMail(mail_config)
     Mail.send_mail(subject, msg)
 
 
 if __name__ == "__main__":
-    Notify("UESTC-Signin", "hello world")
+    mail_config = MailConfig("../uestc.conf")
+    Notify(mail_config,"UESTC-Signin", "hello world")

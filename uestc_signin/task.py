@@ -269,7 +269,7 @@ def DateCompare(date_1, date_2):
     return a < b
 
 
-def MainTask(user_config, notify: bool = False):
+def MainTask(user_config, mail_config):
     last_check_day = "1970-01-01"
     subject = "UESTC-Notify"
     while True:
@@ -288,9 +288,9 @@ def MainTask(user_config, notify: bool = False):
                     last_check_day = current_date_str
                     msg = f"Today's task has completed {user_config.user}"
                     logger.info(msg)
-                    if notify:
+                    if mail_config.enable == 'true':
                         threading.Thread(
-                            target=Notify, args=(subject, msg,)).start()
+                            target=Notify, args=(mail_config, subject, msg,)).start()
                 else:
                     time.sleep(30)
                     logger.error("Login error, password or username wrong.")
