@@ -7,4 +7,5 @@ data/*.json
 .vscode/*
 *.jpg
 *.png
+*.pyc
 tags

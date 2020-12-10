@@ -12,7 +12,7 @@ from abc import ABCMeta, abstractmethod
 from .config import UserConfig
 from .util import get_date_str
 from .uestc_login import Login, ReLogin
-
+from .notify import Notify
 logger = logging.getLogger(__name__)
 
 
@@ -269,23 +269,28 @@ def DateCompare(date_1, date_2):
     return a < b
 
 
-def MainTask(config):
+def MainTask(user_config, notify: bool = False):
     last_check_day = "1970-01-01"
+    subject = "UESTC-Notify"
     while True:
         current_date = datetime.datetime.now()
         current_date_str = current_date.strftime("%Y-%m-%d")
         # if current_date not run task and hour is greater 8am
         if DateCompare(last_check_day, current_date_str) and current_date.hour > 8:
             try:
-                if ReLogin(config):
+                if ReLogin(user_config):
                     logger.info("starting today's task")
-                    stu = StuReportTask(config)
+                    stu = StuReportTask(user_config)
                     stu.run()
-                    tem = TemperatureTask(config)
+                    tem = TemperatureTask(user_config)
                     tem.run()
                     # we have completed today's task,then we need to update state
                     last_check_day = current_date_str
-                    logger.info("Today's task has completed")
+                    msg = f"Today's task has completed {user_config.user}"
+                    logger.info(msg)
+                    if notify:
+                        threading.Thread(
+                            target=Notify, args=(subject, msg,)).start()
                 else:
                     time.sleep(30)
                     logger.error("Login error, password or username wrong.")
