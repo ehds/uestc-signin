@@ -1,4 +1,10 @@
-# encoding:utf-8
+# coding=utf-8
+#
+# Copyright (c) 2020 The UESTC-Signin Authors. All rights reserved.
+# Use of this source code is governed by a MIT-style license that can be
+# found in the LICENSE file. See the AUTHORS file for names of contributors.
+#
+# Authors: ehds(ds.he@foxmail.com)
 
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
