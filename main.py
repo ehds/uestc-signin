@@ -19,11 +19,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         config_path = sys.argv[1]
 
+    # get user config
     user_config = UserConfig(config_path)
-    # get user config
+    # get mail config
     mail_config = MailConfig(config_path)
-    # get user config
-
-    enable_notify = mail_config.enable == 'true'
-    # print(user_config,mail_config,enable_notify)
-    MainTask(user_config, enable_notify)
+    MainTask(user_config, mail_config)
