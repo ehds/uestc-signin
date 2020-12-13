@@ -100,7 +100,7 @@ class Login(object):
 
         # complete captcha (move slider bar)
         # mabye fail we can try many times
-        for _ in range(20):
+        for _ in range(0):
             captcha_img_ele = driver.find_element_by_xpath(
                 '/html/body/div/div[2]/div[2]/div/div[1]/div/div/div/div[2]/div/canvas[1]')
             captcha_base64 = driver.execute_script(
@@ -133,11 +133,11 @@ class Login(object):
             # vertify if login success
             if "authserver" not in driver.current_url:
                 break
-        # fail to login, out of try times
-        else:
-            self.release_driver()
-            logger.error("log in failed,maybe username of password is wrong")
-            return False
+        # not need captcha anymore
+        # else:
+        #     self.release_driver()
+        #     logger.error("log in failed,maybe username of password is wrong")
+        #     return False
 
         # enter app for getting login cookies
         driver.get(
