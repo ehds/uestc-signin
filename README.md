@@ -57,7 +57,7 @@ python3 main.py confs
 ### Docker
 
 ```
-docker run -d --name ehds/uestc-signin -v path/to/conf_dir:/etc/uestc_signin/confs uestc-signin
+docker run -d --name ehds/uestc-signin -v path/to/uestc.conf:/etc/uestc_signin/uestc.conf uestc-signin
 ```
 
 ## TODO
