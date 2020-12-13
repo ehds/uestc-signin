@@ -19,5 +19,4 @@ COPY uestc.conf /etc/uestc_signin/uestc.conf
 RUN cd ${UESTC_HOME} && bash install.sh
 
 WORKDIR ${UESTC_HOME}
-ENTRYPOINT ["python3","main.py"]
-CMD ["/etc/uestc_signin/uestc.conf"]
+
