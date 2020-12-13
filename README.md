@@ -13,9 +13,13 @@ Then
 bash install.sh
 ```
 ### Docker
-```
-docker build -t uestc_signin:latest .
 
+```
+docker pull ehds/uestc-signin:latest
+```
+or build by yourself
+```
+docker build -t ehds/uestc-signin:latest .
 ```
 
 ## Usage
@@ -53,7 +57,7 @@ python3 main.py uestc.conf
 ### Docker
 
 ```
-docker run -d --name uestc_signin -v path/to/uestc.conf:/etc/uestc_signin/uestc.conf uestc_signin
+docker run -d --name ehds/uestc-signin -v path/to/uestc.conf:/etc/uestc_signin/uestc.conf uestc-signin
 ```
 
 ## TODO
