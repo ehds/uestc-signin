@@ -17,6 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
+import requests
 from .baidu import baidu_ocr
 from .captcha import CalcMoveOffset
 
@@ -73,6 +74,9 @@ class Login(object):
             self.driver.quit()
 
     def login(self) -> bool:
+        if self.check_cookies_valid():
+            return True
+
         if self.driver == None:
             self.init_driver()
 
@@ -174,6 +178,26 @@ class Login(object):
             with open("./data/cookies.json", "r") as f:
                 return json.load(f)
 
+    def check_cookies_valid(self):
+        cookies = Login.load_cookies()
+        lastest_daily_report_url = "http://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/getLatestDailyReportData.do"
+        post_data = {
+            "pageNum": 1,
+            "pageSize": 10,
+            "USER_ID": self.user
+        }
+        headers = {
+            'Origin': 'http://eportal.uestc.edu.cn',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0',
+        }
+        last_daily_data = requests.post(
+            lastest_daily_report_url, data=post_data, headers=headers, cookies=cookies).content
+        try:
+            _ = json.loads(last_daily_data)
+            return True
+        except Exception as e:
+            logger.debug(f"Cookies is unvalid {e}")
+        return False
 
 def ReLogin(config):
     if config.user is None or config.password is None:
@@ -181,7 +205,7 @@ def ReLogin(config):
         return False
 
     login = Login(config.user, config.password)
-
+    # check if cookies is valid
     try:
         login_status = login.login()
         return login_status
