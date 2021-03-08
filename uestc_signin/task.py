@@ -290,8 +290,8 @@ def MainTask(user_config, mail_config):
                     logger.info("starting today's task")
                     stu = StuReportTask(user_config)
                     stu.run()
-                    tem = TemperatureTask(user_config)
-                    tem.run()
+                    #tem = TemperatureTask(user_config)
+                    #tem.run()
                     # we have completed today's task,then we need to update state
                     last_check_day = current_date_str
                     msg = f"Today's task has completed {user_config.user}"
