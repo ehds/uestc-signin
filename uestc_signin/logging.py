@@ -7,7 +7,6 @@ def create_logger(name: str, path:str="log") -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     log_path = os.path.join(log_dir,path)
-    print(log_path)
     fh = logging.FileHandler(log_path)
     sh = logging.StreamHandler()
     fh.setLevel(logging.INFO)

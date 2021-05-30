@@ -10,7 +10,7 @@ import sys
 import os
 import threading
 from uestc_signin.logging import create_logger
-from uestc_signin.config import UserConfig, MailConfig, DEFAULT_CONFIG_PATH
+from uestc_signin.config import UserConfig, MailConfig
 
 from uestc_signin.task import MainTask
 

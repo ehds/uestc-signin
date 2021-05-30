@@ -75,6 +75,7 @@ class Login(object):
 
     def login(self) -> bool:
         if self.check_cookies_valid():
+            logger.info("Cookies is still valid,not need to login again")
             return True
 
         if self.driver == None:
@@ -118,15 +119,19 @@ class Login(object):
                 "return arguments[0].toDataURL('image/png').substring(21);", template_img_ele)
 
             # decode
+            captch_png_path = os.path.join(
+                DATA_DIR, f"{self.user}_captcha.png")
+            template_png_path = os.path.join(
+                DATA_DIR, f"{self.user}_template.png")
             origin_png = base64.b64decode(captcha_base64)
-            with open("captcha.png", 'wb') as f:
+            with open(captch_png_path, 'wb') as f:
                 f.write(origin_png)
 
             template_png = base64.b64decode(template_base64)
-            with open("template.png", 'wb') as f:
+            with open(template_png_path, 'wb') as f:
                 f.write(template_png)
 
-            offset = CalcMoveOffset('./captcha.png', 'template.png', width)
+            offset = CalcMoveOffset(captch_png_path, template_png_path, width)
             source = driver.find_element_by_class_name('slider')
             actions = ActionChains(
                 driver).drag_and_drop_by_offset(source, offset, 0)
@@ -155,7 +160,7 @@ class Login(object):
             logger.error("Loding cookie error {}".format(e))
             return False
         finally:
-            self.save_cookies(driver.get_cookies())
+            self.save_cookies(self.user, driver.get_cookies())
             self.release_driver()
         # everythin is ok, login is ok
         return True
@@ -168,13 +173,13 @@ class Login(object):
             cookies[elem['name']] = elem['value']
 
         cookie_json = json.dumps(cookies, indent=4)
-        cookies_path = os.path.join(DATA_DIR,f"{user}_cookies.json")
+        cookies_path = os.path.join(DATA_DIR, f"{user}_cookies.json")
         with open(cookies_path, "w") as f:
             f.write(cookie_json)
 
     @staticmethod
     def load_cookies(user):
-        cookies_path = os.path.join(DATA_DIR,f"{user}_cookies.json")
+        cookies_path = os.path.join(DATA_DIR, f"{user}_cookies.json")
         if not os.path.exists(cookies_path):
             return {}
         else:
@@ -210,6 +215,7 @@ def ReLogin(config):
 
     logger = create_logger(__name__, config.user)
     login = Login(config.user, config.password)
+
     # check if cookies is valid
     try:
         login_status = login.login()

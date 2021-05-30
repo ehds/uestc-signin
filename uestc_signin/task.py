@@ -6,6 +6,7 @@
 #
 # Authors: ehds(ds.he@foxmail.com)
 
+from uestc_signin.logging import create_logger
 import requests
 import json
 import datetime
@@ -73,7 +74,7 @@ class TemperatureTask(Task):
 
     def init_data(self):
         """ init cookies and user data """
-        self.cookies = Login.load_cookies()
+        self.cookies = Login.load_cookies(self.config.user)
         logger.info(self.cookies)
         user_info_url = "https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/api/base/getUserDetailDB.do"
         res = requests.post(user_info_url, cookies=self.cookies).content.decode(
@@ -213,7 +214,7 @@ class StuReportTask(Task):
         return data
 
     def _get_today_wid(self):
-        self.cookies = Login.load_cookies()
+        self.cookies = Login.load_cookies(self.config.user)
         url = "https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/getMyTodayReportWid.do"
         post_data = {
             "pageNum": "1",
@@ -279,17 +280,21 @@ def DateCompare(date_1, date_2):
 
 
 def MainTask(user_config, mail_config):
+    logger = create_logger(__name__,user_config.user)
     last_check_day = "1970-01-01"
     subject = "UESTC-Notify"
     today_fail_count = 0
     while True:
+        
         current_date = datetime.datetime.now()
         current_date_str = current_date.strftime("%Y-%m-%d")
+        
         # if today not run task and hour is greater 8am and try count < 10
         if DateCompare(last_check_day, current_date_str) and current_date.hour > 8:
+            logger.info(f"starting today {current_date_str} task")
             try:
                 if ReLogin(user_config):
-                    logger.info("starting today's task")
+                    logger.info(f"starting today {current_date_str} task")
                     stu = StuReportTask(user_config)
                     stu.run()
                     #tem = TemperatureTask(user_config)
