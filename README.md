@@ -25,7 +25,7 @@ docker build -t ehds/uestc-signin:latest .
 ## Usage
 Please sync time zone first
 ### Linux
-set username and passwd at uestc.conf
+set username and passwd at confs/uestc.conf, you can add multiple conf file for every users.
 ```
 user = '2018220xxxx'
 password = 'xxx'
@@ -51,13 +51,13 @@ receivers =
 
 run the task
 ```
-python3 main.py uestc.conf
+python3 main.py confs
 ```
 
 ### Docker
 
 ```
-docker run -d --name ehds/uestc-signin -v path/to/uestc.conf:/etc/uestc_signin/uestc.conf uestc-signin
+docker run -d --name ehds/uestc-signin -v path/to/conf_dir:/etc/uestc_signin/confs uestc-signin
 ```
 
 ## TODO
