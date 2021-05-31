@@ -26,7 +26,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class Config(object, metaclass=Singleton):
+class Config(object):
     def __init__(self, config_path):
         self._config_path = config_path
         self.parse()
