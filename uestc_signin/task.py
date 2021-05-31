@@ -6,6 +6,7 @@
 #
 # Authors: ehds(ds.he@foxmail.com)
 
+from uestc_signin.logging import create_logger
 import requests
 import json
 import datetime
@@ -16,10 +17,11 @@ import threading
 import logging
 from enum import Enum
 from abc import ABCMeta, abstractmethod
-from .config import UserConfig
+from .config import DATA_DIR, UserConfig
 from .util import get_date_str
 from .uestc_login import Login, ReLogin
 from .notify import Notify
+import os
 logger = logging.getLogger(__name__)
 
 
@@ -65,20 +67,21 @@ class TemperatureTask(Task):
         super(TemperatureTask, self).__init__(config)
         self.url = 'https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/tempReport/T_REPORT_TEMPERATURE_YJS_SAVE.do'
         self.method = self.RequestMethod.POST
+        self._data_path = os.path.join(DATA_DIR,f"{self.config.user}_user.json")
         self.last_run = []
         self.init_data()
         self.headers = {}
 
     def init_data(self):
         """ init cookies and user data """
-        self.cookies = Login.load_cookies()
+        self.cookies = Login.load_cookies(self.config.user)
         logger.info(self.cookies)
         user_info_url = "https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/api/base/getUserDetailDB.do"
         res = requests.post(user_info_url, cookies=self.cookies).content.decode(
             encoding="utf-8")
         user_info = json.loads(res)
         assert "data" in user_info, "get userinfo failed"
-        with open("./data/user.json", "w") as f:
+        with open(self._data_path, "w") as f:
             json.dump(user_info["data"], f)
 
         self.headers = {
@@ -113,7 +116,7 @@ class TemperatureTask(Task):
         # data from user info
         user_info_keys = ["USER_ID", "USER_NAME", "DEPT_CODE", "DEPT_NAME"]
         data = {}
-        with open("./data/user.json", 'r') as f:
+        with open(self._data_path, 'r') as f:
             user = json.load(f)
             for key in user_info_keys:
                 data[key] = user[key]
@@ -156,12 +159,12 @@ class StuReportTask(Task):
         self.url = 'https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/T_REPORT_EPIDEMIC_CHECKIN_YJS_SAVE.do'
         self.method = self.RequestMethod.POST
         self.last_run = 0
-        self.data_path = 'data/report.json'
+        self._data_path = os.path.join(DATA_DIR, f"{self.config.user}_report.json")
         self.cookies = {}
         self.init_data()
 
     def init_data(self):
-        self.cookies = Login.load_cookies()
+        self.cookies = Login.load_cookies(self.config.user)
         lastest_daily_report_url = "https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/getLatestDailyReportData.do"
         post_data = {
             "pageNum": 1,
@@ -174,11 +177,11 @@ class StuReportTask(Task):
         }
         last_daily_data = requests.post(
             lastest_daily_report_url, data=post_data, headers=headers, cookies=self.cookies).content
-        print(last_daily_data)
         logger.info(last_daily_data)
         data = json.loads(last_daily_data)
+        
         data = data["datas"]["getLatestDailyReportData"]["rows"][0]
-        with open('./data/report.json', 'w') as f:
+        with open(self._data_path, 'w') as f:
             json.dump(data, f)
 
     def _is_need_to_run(self):
@@ -199,7 +202,7 @@ class StuReportTask(Task):
 
     def _get_post_data(self):
         data = {}
-        with open('./data/report.json', 'r') as f:
+        with open(self._data_path, 'r') as f:
             data = json.load(f)
         # Normally we not need to change report data, just post lastest data
         cur_date_str, time_str = get_date_str().split(" ")
@@ -211,7 +214,7 @@ class StuReportTask(Task):
         return data
 
     def _get_today_wid(self):
-        self.cookies = Login.load_cookies()
+        self.cookies = Login.load_cookies(self.config.user)
         url = "https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/getMyTodayReportWid.do"
         post_data = {
             "pageNum": "1",
@@ -277,17 +280,21 @@ def DateCompare(date_1, date_2):
 
 
 def MainTask(user_config, mail_config):
+    logger = create_logger(__name__,user_config.user)
     last_check_day = "1970-01-01"
     subject = "UESTC-Notify"
     today_fail_count = 0
     while True:
+        
         current_date = datetime.datetime.now()
         current_date_str = current_date.strftime("%Y-%m-%d")
+        
         # if today not run task and hour is greater 8am and try count < 10
         if DateCompare(last_check_day, current_date_str) and current_date.hour > 8:
+            logger.info(f"starting today {current_date_str} task")
             try:
                 if ReLogin(user_config):
-                    logger.info("starting today's task")
+                    logger.info(f"starting today {current_date_str} task")
                     stu = StuReportTask(user_config)
                     stu.run()
                     #tem = TemperatureTask(user_config)

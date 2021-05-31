@@ -15,8 +15,8 @@ from email.mime.multipart import MIMEMultipart
 from email.header import Header
 import logging
 from .config import MailConfig
-
-logger = logging.getLogger(__name__)
+from .logging import create_logger
+logger = create_logger(__name__)
 
 
 class SendMail():
@@ -90,8 +90,3 @@ class SendMail():
 def Notify(mail_config, subject, msg):
     Mail = SendMail(mail_config)
     Mail.send_mail(subject, msg)
-
-
-if __name__ == "__main__":
-    mail_config = MailConfig("../uestc.conf")
-    Notify(mail_config,"UESTC-Signin", "hello world")

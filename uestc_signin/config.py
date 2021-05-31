@@ -12,8 +12,9 @@ import json
 import configparser
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_PATH = 'uestc.conf'
-
+CONF_DIR = "confs"
+LOGS_DIR = "logs"
+DATA_DIR = "data"
 
 class Singleton(type):
     _instances = {}
@@ -25,8 +26,8 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class Config(object, metaclass=Singleton):
-    def __init__(self, config_path=DEFAULT_CONFIG_PATH):
+class Config(object):
+    def __init__(self, config_path):
         self._config_path = config_path
         self.parse()
 
@@ -41,19 +42,12 @@ class Config(object, metaclass=Singleton):
 
 
 class UserConfig(Config):
-    def __init__(self, config_path=DEFAULT_CONFIG_PATH):
+    def __init__(self, config_path):
         self._section = "user"
         super(UserConfig, self).__init__(config_path)
 
 
 class MailConfig(Config):
-    def __init__(self, config_path=DEFAULT_CONFIG_PATH):
+    def __init__(self, config_path):
         super(MailConfig, self).__init__(config_path)
         self._section = "mail"
-
-
-if __name__ == "__main__":
-    m = MailConfig("../uestc.conf")
-    print(m.pop_host)
-    c = UserConfig("../uestc.conf")
-    print(c.password)

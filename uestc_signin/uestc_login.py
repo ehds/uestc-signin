@@ -11,6 +11,7 @@ import time
 import json
 import os
 import base64
+from uestc_signin.logging import create_logger
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
@@ -18,9 +19,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
 import requests
-from .baidu import baidu_ocr
 from .captcha import CalcMoveOffset
-
+from .config import DATA_DIR, LOGS_DIR
 logger = logging.getLogger(__name__)
 
 
@@ -75,6 +75,7 @@ class Login(object):
 
     def login(self) -> bool:
         if self.check_cookies_valid():
+            logger.info("Cookies is still valid,not need to login again")
             return True
 
         if self.driver == None:
@@ -118,15 +119,19 @@ class Login(object):
                 "return arguments[0].toDataURL('image/png').substring(21);", template_img_ele)
 
             # decode
+            captch_png_path = os.path.join(
+                DATA_DIR, f"{self.user}_captcha.png")
+            template_png_path = os.path.join(
+                DATA_DIR, f"{self.user}_template.png")
             origin_png = base64.b64decode(captcha_base64)
-            with open("captcha.png", 'wb') as f:
+            with open(captch_png_path, 'wb') as f:
                 f.write(origin_png)
 
             template_png = base64.b64decode(template_base64)
-            with open("template.png", 'wb') as f:
+            with open(template_png_path, 'wb') as f:
                 f.write(template_png)
 
-            offset = CalcMoveOffset('./captcha.png', 'template.png', width)
+            offset = CalcMoveOffset(captch_png_path, template_png_path, width)
             source = driver.find_element_by_class_name('slider')
             actions = ActionChains(
                 driver).drag_and_drop_by_offset(source, offset, 0)
@@ -155,31 +160,34 @@ class Login(object):
             logger.error("Loding cookie error {}".format(e))
             return False
         finally:
-            Login.save_cookies(driver.get_cookies())
+            self.save_cookies(self.user, driver.get_cookies())
             self.release_driver()
         # everythin is ok, login is ok
         return True
 
-    @classmethod
-    def save_cookies(cls, driver_cookies):
+    @staticmethod
+    def save_cookies(user, driver_cookies):
         cookies = {}
+
         for elem in driver_cookies:
             cookies[elem['name']] = elem['value']
 
         cookie_json = json.dumps(cookies, indent=4)
-        with open("./data/cookies.json", "w") as f:
+        cookies_path = os.path.join(DATA_DIR, f"{user}_cookies.json")
+        with open(cookies_path, "w") as f:
             f.write(cookie_json)
 
-    @classmethod
-    def load_cookies(cls):
-        if not os.path.exists(os.path.join("./data/cookies.json")):
+    @staticmethod
+    def load_cookies(user):
+        cookies_path = os.path.join(DATA_DIR, f"{user}_cookies.json")
+        if not os.path.exists(cookies_path):
             return {}
         else:
-            with open("./data/cookies.json", "r") as f:
+            with open(cookies_path, "r") as f:
                 return json.load(f)
 
     def check_cookies_valid(self):
-        cookies = Login.load_cookies()
+        cookies = Login.load_cookies(self.user)
         lastest_daily_report_url = "http://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/getLatestDailyReportData.do"
         post_data = {
             "pageNum": 1,
@@ -205,7 +213,9 @@ def ReLogin(config):
         print("you need to set username and passwd")
         return False
 
+    logger = create_logger(__name__, config.user)
     login = Login(config.user, config.password)
+
     # check if cookies is valid
     try:
         login_status = login.login()
