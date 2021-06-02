@@ -11,10 +11,8 @@ import os
 import threading
 from uestc_signin.logging import create_logger
 from uestc_signin.config import UserConfig, MailConfig
-
 from uestc_signin.task import MainTask
 
-# from uestc_signin.task import MainTask
 # TODO use argpase
 
 logger = create_logger(__name__)
@@ -39,6 +37,8 @@ def main():
         init_dir()
     except OSError as e:
         logger.warning(f"Can't init log and data dir error {e}")
+        return
+        
     # get user config
     threads = []
     for conf in confs:

@@ -1,12 +1,16 @@
 import logging
 import os
-
+import threading
 log_dir = "logs"
 
 def create_logger(name: str, path:str="log") -> logging.Logger:
-    logger = logging.getLogger(name)
+    current_thread = threading.current_thread().getName()
+    print(current_thread)
+    logger = logging.getLogger(name + current_thread)
     logger.setLevel(logging.INFO)
+
     log_path = os.path.join(log_dir,path)
+    print(log_path)
     fh = logging.FileHandler(log_path)
     sh = logging.StreamHandler()
     fh.setLevel(logging.INFO)
