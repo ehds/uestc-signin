@@ -12,18 +12,15 @@ import json
 import datetime
 import random
 import time
-import sys
 import threading
-import logging
 from enum import Enum
-from abc import ABCMeta, abstractmethod
-from .config import DATA_DIR, UserConfig
+from abc import abstractmethod
+from .config import DATA_DIR
 from .util import get_date_str
 from .uestc_login import Login, ReLogin
 from .notify import Notify
 import os
-logger = logging.getLogger(__name__)
-
+logger = create_logger(__name__)
 
 class Task(object):
 
