@@ -7,14 +7,8 @@
 # Authors: ehds(ds.he@foxmail.com)
 
 import smtplib
-import os
-import sys
-import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.header import Header
-import logging
-from .config import MailConfig
 from .logging import create_logger
 logger = create_logger(__name__)
 

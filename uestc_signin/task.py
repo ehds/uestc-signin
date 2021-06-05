@@ -17,10 +17,11 @@ from enum import Enum
 from abc import abstractmethod
 from .config import DATA_DIR
 from .util import get_date_str
-from .uestc_login import Login, ReLogin
+from .uestc_login import Login, relogin
 from .notify import Notify
 import os
 logger = create_logger(__name__)
+
 
 class Task(object):
 
@@ -64,7 +65,8 @@ class TemperatureTask(Task):
         super(TemperatureTask, self).__init__(config)
         self.url = 'https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/tempReport/T_REPORT_TEMPERATURE_YJS_SAVE.do'
         self.method = self.RequestMethod.POST
-        self._data_path = os.path.join(DATA_DIR,f"{self.config.user}_user.json")
+        self._data_path = os.path.join(
+            DATA_DIR, f"{self.config.user}_user.json")
         self.last_run = []
         self.init_data()
         self.headers = {}
@@ -156,7 +158,8 @@ class StuReportTask(Task):
         self.url = 'https://eportal.uestc.edu.cn/jkdkapp/sys/lwReportEpidemicStu/mobile/dailyReport/T_REPORT_EPIDEMIC_CHECKIN_YJS_SAVE.do'
         self.method = self.RequestMethod.POST
         self.last_run = 0
-        self._data_path = os.path.join(DATA_DIR, f"{self.config.user}_report.json")
+        self._data_path = os.path.join(
+            DATA_DIR, f"{self.config.user}_report.json")
         self.cookies = {}
         self.init_data()
 
@@ -176,7 +179,7 @@ class StuReportTask(Task):
             lastest_daily_report_url, data=post_data, headers=headers, cookies=self.cookies).content
         logger.info(last_daily_data)
         data = json.loads(last_daily_data)
-        
+
         data = data["datas"]["getLatestDailyReportData"]["rows"][0]
         with open(self._data_path, 'w') as f:
             json.dump(data, f)
@@ -269,33 +272,34 @@ class MyThread(threading.Thread):
             # call a function
 
 
-def DateCompare(date_1, date_2):
+def data_compare(date_1, date_2):
     # date: %Y-%m-%d
     a = datetime.datetime.strptime(date_1, "%Y-%m-%d")
     b = datetime.datetime.strptime(date_2, "%Y-%m-%d")
     return a < b
 
 
-def MainTask(user_config, mail_config):
-    logger = create_logger(__name__,user_config.user)
+def main_task(user_config, mail_config):
+    logger = create_logger(__name__, user_config.user)
     last_check_day = "1970-01-01"
     subject = "UESTC-Notify"
     today_fail_count = 0
     while True:
-        
+
         current_date = datetime.datetime.now()
         current_date_str = current_date.strftime("%Y-%m-%d")
-        
+
         # if today not run task and hour is greater 8am and try count < 10
-        if DateCompare(last_check_day, current_date_str) and current_date.hour > 8:
-            logger.info(f"starting today {current_date_str} task")
+        if data_compare(last_check_day, current_date_str) and current_date.hour > 8:
             try:
-                if ReLogin(user_config):
+                if relogin(user_config):
                     logger.info(f"starting today {current_date_str} task")
                     stu = StuReportTask(user_config)
                     stu.run()
+
                     #tem = TemperatureTask(user_config)
-                    #tem.run()
+                    # tem.run()
+
                     # we have completed today's task,then we need to update state
                     last_check_day = current_date_str
                     msg = f"Today's task has completed {user_config.user}"
@@ -305,25 +309,28 @@ def MainTask(user_config, mail_config):
                         threading.Thread(
                             target=Notify, args=(mail_config, subject, msg,)).start()
                 else:
-                    time.sleep(30)
                     today_fail_count += 1
-                    logger.error(f"Login error, password or username wrong.")
+                    logger.error(f"Login error, password or username wrong."
+                                 f" Try times:{today_fail_count}")
             except Exception as e:
                 today_fail_count += 1
                 logger.error(
-                    f"Task error,maybe the internet can not access {e}")
-                time.sleep(10)
-
-        # if we try many times, force exit and notify user for fixing
-        if today_fail_count > 10:
-            logger.error(f"Try many times, force exit")
-            if mail_config.enable == 'true':
-                threading.Thread(
-                    target=Notify, args=(mail_config, subject, "Safe-Report task failed, please renew your config :-(",)).start()
-            # exit
-            break
-        # We need this?
+                    f"Task error, maybe can not access the internet {e}."
+                    f" Try times: {today_fail_count}")
+            finally:
+                # retry many times, we should force exit this task.
+                if today_fail_count > 10:
+                    logger.error(f"Try many times, force exit")
+                    # notify user task failed, please check network and config.
+                    if mail_config.enable == 'true':
+                        send_mail = threading.Thread(
+                            target=Notify, args=(mail_config, subject, "Safe-Report task failed, please renew your config :-(",))
+                        send_mail.start()
+                        send_mail.join()
+                        return
+                # wait for 30 seconds, then retry again.
+                time.sleep(30)
         else:
-            logger.info("Not need to run task,wating for task")
-            # waiting for 20 minutes
+            logger.info("Not need to run today task, waiting for task")
+            # wait for 20 minutes
             time.sleep(20*60)

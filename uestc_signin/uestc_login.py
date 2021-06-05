@@ -208,7 +208,7 @@ class Login(object):
         return False
 
 
-def ReLogin(config):
+def relogin(config):
     if config.user is None or config.password is None:
         print("you need to set username and passwd")
         return False
