@@ -19,4 +19,4 @@ COPY uestc.conf /etc/uestc_signin/uestc.conf
 RUN cd ${UESTC_HOME} && bash install.sh
 
 WORKDIR ${UESTC_HOME}
-
+CMD ["/usr/bin/bash"]
