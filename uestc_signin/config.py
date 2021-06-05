@@ -8,13 +8,13 @@
 
 import os
 import logging
-import json
 import configparser
 logger = logging.getLogger(__name__)
 
 CONF_DIR = "confs"
 LOGS_DIR = "logs"
 DATA_DIR = "data"
+
 
 class Singleton(type):
     _instances = {}
