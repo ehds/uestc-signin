@@ -10,13 +10,11 @@ RUN apt -y install git curl unzip pkg-config
 # Dependent libs
 RUN apt -y install libgl1-mesa-glx libcairo2-dev libjpeg-dev libgif-dev
 
-RUN curl -fSL https://github.com/ehds/uestc-signin/archive/master.zip -o uestc_signin.zip
-RUN unzip uestc_signin.zip
+RUN curl -fSL https://github.com/ehds/uestc-signin/archive/refs/heads/master.zip -o uestc-signin.zip
+RUN unzip uestc-signin.zip
 RUN mv uestc-signin-master ${UESTC_HOME}
-RUN rm -rf uestc_signin.zip
-RUN mkdir -p /etc/uestck_signin
-COPY uestc.conf /etc/uestc_signin/uestc.conf
+RUN rm -rf uestc-signin.zip
+RUN mkdir -p /etc/uestc-signin
 RUN cd ${UESTC_HOME} && bash install.sh
-
 WORKDIR ${UESTC_HOME}
 CMD ["/usr/bin/bash"]
