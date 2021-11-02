@@ -48,7 +48,7 @@ class SendMail():
             return
 
         msg = MIMEText(content, _subtype='plain', _charset='utf-8')
-        me = subject+'<'+self.username+'>'
+        me = '<'+self.username+'>'
         msg['Subject'] = subject
         msg['From'] = me
         msg['To'] = ";".join(to_list)
@@ -63,7 +63,7 @@ class SendMail():
         if len(to_list) == 0 or not self.login():
             return
         msg = MIMEMultipart('alternatvie')
-        me = subject + '<' + self.username + '>'
+        me = '<' + self.username + '>'
         msg['Subject'] = subject
         msg['From'] = me
         msg['To'] = ";".join(to_list)
